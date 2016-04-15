@@ -8,7 +8,13 @@ HUE_IDS = [1, 2, 3, 9]
 
 previous_weight_log = nil
 request = Faraday.new "https://api.fitbit.com"
-hue_request = Faraday.new "http://10.0.0.15"
+HUE_REQUEST = Faraday.new "http://10.0.0.15"
+
+def change_colors(hue, sat)
+  HUE_IDS.each do |hue_id|
+    HUE_REQUEST.put "/api/#{HUE_USERNAME}/lights/#{hue_id}/state", JSON.generate(hue: hue, sat: sat, on: true)
+  end
+end
 
 while true
   current_date = Time.now.strftime("%Y-%m-%d")
@@ -39,25 +45,14 @@ while true
   if previous_weight_log
     unless previous_weight_log["logId"] == latest_weight_log["logId"]
       if previous_weight_log["weight"] > latest_weight_log["weight"]
-        puts "I lost weight!"
-        HUE_IDS.each do |hue_id|
-          hue_request.put "/api/#{HUE_USERNAME}/lights/#{hue_id}/state", JSON.generate(hue: 25500, sat: 254)
-        end
+        change_colors 25500, 254
       elsif previous_weight_log["weight"] < latest_weight_log["weight"]
-        puts "I gained weight!"
-        HUE_IDS.each do |hue_id|
-          hue_request.put "/api/#{HUE_USERNAME}/lights/#{hue_id}/state", JSON.generate(hue: 65280, sat: 254)
-        end
+        change_colors 65280, 254
       else
-        puts "My weight is the same!"
-        HUE_IDS.each do |hue_id|
-          hue_request.put "/api/#{HUE_USERNAME}/lights/#{hue_id}/state", JSON.generate(hue: 46920, sat: 254)
-        end
+        change_colors 46920, 254
       end
       sleep(10)
-      HUE_IDS.each do |hue_id|
-        hue_request.put "/api/#{HUE_USERNAME}/lights/#{hue_id}/state", JSON.generate(hue: 15660, sat: 100)
-      end
+      change_colors 15660, 100
     end
     previous_weight_log = latest_weight_log
   else
