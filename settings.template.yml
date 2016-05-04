@@ -6,7 +6,6 @@ fit_bit:
   refresh_token: your_refresh_token
 hue:
   username: your_username
-  ip: 10.0.0.15
   default_color: 15660
   gained_weight_color: 25500
   lost_weight_color: 65280

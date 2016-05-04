@@ -8,7 +8,6 @@ USER_ID = SETTINGS["fit_bit"]["user_id"]
 HUE_USERNAME = SETTINGS["hue"]["username"]
 CLIENT_SECRET = SETTINGS["fit_bit"]["client_secret"]
 HUE_IDS = SETTINGS["hue"]["light_ids"]
-HUE_IP = SETTINGS["hue"]["ip"]
 DEFAULT_COLOR = SETTINGS["hue"]["default_color"]
 GAINED_WEIGHT_COLOR = SETTINGS["hue"]["gained_weight_color"]
 LOST_WEIGHT_COLOR = SETTINGS["hue"]["lost_weight_color"]
@@ -20,11 +19,10 @@ SAME_WEIGHT_SAT = SETTINGS["hue"]["same_weight_sat"]
 
 previous_weight_log = nil
 FITBIT_REQUEST = Faraday.new "https://api.fitbit.com"
-HUE_REQUEST = Faraday.new "http://#{HUE_IP}"
 
 def change_colors(hue, sat)
   HUE_IDS.each do |hue_id|
-    HUE_REQUEST.put "/api/#{HUE_USERNAME}/lights/#{hue_id}/state", JSON.generate(hue: hue, sat: sat, on: true)
+    hue_client.put "/api/#{HUE_USERNAME}/lights/#{hue_id}/state", JSON.generate(hue: hue, sat: sat, on: true)
   end
 end
 
@@ -35,6 +33,12 @@ def get_weight_log
   FITBIT_REQUEST.headers["Authorization"] = "Bearer #{access_token}"
   FITBIT_REQUEST.headers["Accept-Language"] = "en_US"
   FITBIT_REQUEST.get weight_api_url
+end
+
+def hue_client
+  internal_api = Faraday.new "https://www.meethue.com/api/nupnp"
+  JSON.parse(response.get.body)[0]["internalipaddress"]
+  Faraday.new "http://#{hue_ip}"
 end
 
 def reauthorize
