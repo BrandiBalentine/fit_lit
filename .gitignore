@@ -1,1 +1,4 @@
 settings.yml
+*.pid
+start.sh
+stop.sh
