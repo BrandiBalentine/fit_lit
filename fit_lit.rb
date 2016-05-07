@@ -37,7 +37,7 @@ end
 
 def hue_client
   internal_api = Faraday.new "https://www.meethue.com/api/nupnp"
-  JSON.parse(response.get.body)[0]["internalipaddress"]
+  hue_ip = JSON.parse(internal_api.get.body)[0]["internalipaddress"]
   Faraday.new "http://#{hue_ip}"
 end
 
